@@ -206,12 +206,6 @@
 }
 
 /* Rescue trigger */
-[data-theme="dark"] .rescue-trigger{
-  border-color:color-mix(in srgb,var(--red) 30%,transparent);
-}
-[data-theme="dark"] .rescue-trigger:hover{
-  box-shadow:0 0 12px color-mix(in srgb,var(--red) 20%,transparent);
-}
 
 /* FABs glow */
 [data-theme="dark"] .tmr-fab{
@@ -719,24 +713,6 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
 .qc-cancel:hover{background:var(--bg-sub)}
 @media(min-width:768px){.qc-fab{bottom:34px;right:24px}.qc-modal{bottom:88px;right:24px}}
 
-/* ── RESCUE MODE ──────────────────────────── */
-.rescue-overlay{position:absolute;inset:0;background:var(--bg);z-index:400;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,0,.67,0)}
-.rescue-overlay.open{transform:translateY(0);transition:transform .3s cubic-bezier(.33,1,.68,1)}
-.rescue-hdr{flex-shrink:0;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;background:var(--card);border-bottom:1px solid var(--bd)}
-.rescue-body{flex:1;overflow-y:auto;padding:24px 18px 32px}
-.rescue-intro{font-size:.84rem;color:var(--tx2);line-height:1.7;margin-bottom:24px;padding:12px 14px;background:var(--orange-l);border-left:3px solid var(--orange);border-radius:0 var(--rs) var(--rs) 0}
-.rescue-q{margin-bottom:22px}
-.rescue-q-num{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);margin-bottom:5px}
-.rescue-q-txt{font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;color:var(--tx);margin-bottom:5px;line-height:1.3}
-.rescue-q-hint{font-size:.76rem;color:var(--tx3);margin-bottom:10px;font-style:italic}
-.rescue-inp{width:100%;padding:12px 14px;border:1.5px solid var(--bd);border-radius:var(--rs);background:var(--card2);color:var(--tx);font-size:.88rem;outline:none;transition:border-color var(--t)}
-.rescue-inp:focus{border-color:var(--orange);box-shadow:0 0 0 3px color-mix(in srgb,var(--orange) 12%,transparent)}
-.rescue-commit{width:100%;padding:16px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff;font-family:'Fraunces',serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all var(--t);margin-bottom:10px}
-.rescue-commit:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,.4)}
-.rescue-skip{width:100%;padding:11px;border:1.5px solid var(--bd);border-radius:var(--rs);background:transparent;color:var(--tx3);font-size:.8rem;cursor:pointer;transition:all var(--t)}
-.rescue-skip:hover{background:var(--bg-sub)}
-.rescue-trigger{width:100%;padding:10px;border:1.5px dashed color-mix(in srgb,var(--red) 50%,transparent);border-radius:var(--rs);background:transparent;color:var(--red);font-size:.78rem;font-weight:600;cursor:pointer;transition:all var(--t);opacity:.65;margin-top:4px}
-.rescue-trigger:hover{opacity:1;background:var(--red-l)}
 
 /* ── PRINT ───────────────────────────────────── */
 #printView{display:none}
@@ -747,11 +723,14 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
   #printView{display:block!important}
 }
 
-/* Bottom padding so FABs don't cover content on mobile */
+/* FAB as header icons on mobile */
+.hdr-fab{display:none}
 @media(max-width:767px){
-  .tab-panel{padding-bottom:160px}
-  .qc-fab,.tmr-fab{transition:all var(--t),opacity .2s}
-  .qc-fab.kbd-hide,.tmr-fab.kbd-hide{opacity:0;pointer-events:none}
+  .hdr-fab{display:flex;width:30px;height:30px;border:1px solid var(--bd);background:var(--card2);border-radius:50%;align-items:center;justify-content:center;font-size:.82rem;cursor:pointer;transition:all var(--t);color:var(--tx2);flex-shrink:0}
+  .hdr-fab:hover{background:var(--bg-sub)}
+  .tmr-fab,.qc-fab{display:none!important}
+  .tmr-modal{top:58px;bottom:auto!important;right:8px;left:8px;width:auto;max-height:calc(100dvh - 70px);border-radius:var(--r)}
+  .qc-modal{top:58px;bottom:auto!important;right:8px;left:8px;width:auto;border-radius:var(--r)}
 }
 .day-subtabs{display:flex;gap:4px;padding:3px;background:var(--bg-sub);border-radius:calc(var(--rs)+2px);margin-bottom:18px}
 .day-subtab{flex:1;padding:9px 4px;border:none;border-radius:var(--rs);background:transparent;font-size:.82rem;font-weight:600;color:var(--tx3);cursor:pointer;transition:all var(--t)}
@@ -953,6 +932,8 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
     </div>
     <div class="hdr-r">
       <div class="save-pill" id="savePill">✓ Saved</div>
+      <button class="hdr-fab" id="hdrTmrBtn" title="Focus timer">⏱</button>
+      <button class="hdr-fab" id="hdrQcBtn" title="Quick capture">+</button>
       <button class="btn-ico" id="backupBtn" title="Backup & Restore">💾</button>
       <button class="btn-ico" id="printBtn"  title="Print today">🖨️</button>
       <button class="btn-ico" id="histShortcut" title="History">📅</button>
@@ -1091,7 +1072,6 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
           <div class="t-prog-lbl" id="tProgLbl">0 of 3 complete</div>
           <div class="t-prog-bar"><div class="t-prog-fill" id="tProgFill" style="width:0%"></div></div>
           <div id="tasksContainer"></div>
-          <button class="rescue-trigger" id="rescueBtn">🆘 Rough day? Rescue Mode — reset in 3 questions</button>
         </div>
         <div class="col-right">
           <button class="tb-toggle-btn" id="tbToggle">🕐 Time Blocks <span class="tb-arrow">▸</span></button>
@@ -1332,40 +1312,6 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
     <button class="ws-skip" id="wsSkip">Skip intro</button>
   </div>
 
-  <!-- RESCUE MODE OVERLAY -->
-  <div class="rescue-overlay" id="rescueOverlay">
-    <div class="rescue-hdr">
-      <div>
-        <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);margin-bottom:3px">🆘 Rescue Mode</div>
-        <div style="font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;color:var(--tx)">Reset your day</div>
-      </div>
-      <button class="hist-close" id="rescueClose">✕</button>
-    </div>
-    <div class="rescue-body">
-      <p class="rescue-intro">Days don't always go to plan. That's not failure — that's ADHD. Three questions to find your footing again. No pressure.</p>
-      <div class="rescue-q">
-        <div class="rescue-q-num">Question 1 of 3</div>
-        <div class="rescue-q-txt">What's the ONE thing you can still do today?</div>
-        <div class="rescue-q-hint">Not the most important — the most possible right now.</div>
-        <input type="text" class="rescue-inp" id="rescueQ1" placeholder="I can still...">
-      </div>
-      <div class="rescue-q">
-        <div class="rescue-q-num">Question 2 of 3</div>
-        <div class="rescue-q-txt">What will you do in the next 30 minutes?</div>
-        <div class="rescue-q-hint">One action. Specific. Small enough that starting feels easy.</div>
-        <input type="text" class="rescue-inp" id="rescueQ2" placeholder="Right now I will...">
-      </div>
-      <div class="rescue-q">
-        <div class="rescue-q-num">Question 3 of 3</div>
-        <div class="rescue-q-txt">What's a 10-minute version of your original plan?</div>
-        <div class="rescue-q-hint">Done is better than perfect. What's the smallest useful version?</div>
-        <input type="text" class="rescue-inp" id="rescueQ3" placeholder="A tiny version would be...">
-      </div>
-      <button class="rescue-commit" id="rescueCommit">Lock in my rescue plan →</button>
-      <button class="rescue-skip" id="rescueSkip">I just needed to breathe — close without saving</button>
-    </div>
-  </div>
-
   <!-- TIMER FAB -->
   <button class="tmr-fab" id="tmrFab" title="Focus timer"><span class="tmr-fab-ico">⏱</span>Timer</button>
   <div class="tmr-modal" id="tmrModal" style="max-height:calc(100dvh - 160px);overflow-y:auto">
@@ -1428,7 +1374,7 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
 
 <script>
 // ── STATE ────────────────────────────────────────
-var SK='adhd-flow-v3'; var nextRwdId=100; var state={};
+var SK='adhd-flow-v3'; var EXPORT_KEY=SK+'-last-export'; var nextRwdId=100; var state={};
 function todayKey(){ return new Date().toISOString().split('T')[0]; }
 function yestKey(){ var d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().split('T')[0]; }
 function defaultState(){
@@ -2657,12 +2603,12 @@ function closeTmrModal(){
   document.getElementById('tmrModal').classList.remove('open');
   document.getElementById('tmrFab').classList.remove('active');
 }
-document.getElementById('tmrFab').addEventListener('click',function(){
-  tmrModalOpen?closeTmrModal():openTmrModal();
-});
+document.getElementById('tmrFab').addEventListener('click',function(){tmrModalOpen?closeTmrModal():openTmrModal();});
 document.getElementById('tmrModalClose').addEventListener('click',closeTmrModal);
+document.getElementById('hdrTmrBtn').addEventListener('click',function(){tmrModalOpen?closeTmrModal():openTmrModal();});
+document.getElementById('hdrQcBtn').addEventListener('click',function(){qcOpen?closeQC():openQC();});
 document.addEventListener('click',function(e){
-  if(tmrModalOpen&&!e.target.closest('#tmrModal')&&!e.target.closest('#tmrFab')) closeTmrModal();
+  if(tmrModalOpen&&!e.target.closest('#tmrModal')&&!e.target.closest('#tmrFab')&&!e.target.closest('#hdrTmrBtn')) closeTmrModal();
 });
 
 // Custom time input
@@ -2717,235 +2663,34 @@ document.getElementById('qcTa').addEventListener('keydown',function(e){
   if(e.key==='Escape') closeQC();
 });
 document.addEventListener('click',function(e){
-  if(qcOpen&&!e.target.closest('#qcModal')&&!e.target.closest('#qcFab')) closeQC();
+  if(qcOpen&&!e.target.closest('#qcModal')&&!e.target.closest('#qcFab')&&!e.target.closest('#hdrQcBtn')) closeQC();
 });
 
-// ── RESCUE MODE ────────────────────────────────────
-function openRescue(){
-  document.getElementById('rescueOverlay').classList.add('open');
-  document.getElementById('rescueQ1').focus();
+// ── WELCOME SCREEN ─────────────────────────────────
+var wsSlide=0;var WS_KEY='adhd-flow-v3-welcomed';
+function initWelcome(){
+  if(localStorage.getItem(WS_KEY)) return;
+  document.getElementById('welcomeOverlay').style.display='flex';
 }
-function closeRescue(){
-  document.getElementById('rescueOverlay').classList.remove('open');
+function showWsSlide(n){
+  wsSlide=n;
+  document.querySelectorAll('.ws-slide').forEach(function(s){s.classList.remove('act');});
+  document.getElementById('ws'+n).classList.add('act');
+  document.querySelectorAll('.ws-dot').forEach(function(d){d.classList.remove('act');});
+  document.querySelector('.ws-dot[data-s="'+n+'"]').classList.add('act');
+  document.getElementById('wsNextBtn').textContent=n===3?'Start my first day →':'Next →';
 }
-
-document.getElementById('rescueBtn').addEventListener('click',openRescue);
-document.getElementById('rescueClose').addEventListener('click',closeRescue);
-document.getElementById('rescueSkip').addEventListener('click',closeRescue);
-document.getElementById('rescueCommit').addEventListener('click',function(){
-  var q1=document.getElementById('rescueQ1').value.trim();
-  var q2=document.getElementById('rescueQ2').value.trim();
-  var q3=document.getElementById('rescueQ3').value.trim();
-  // Write answers into Big 3 (only if filled in)
-  if(q1){state.tasks[0].title=q1;state.tasks[0].priority='must';state.tasks[0].done=false;}
-  if(q2){state.tasks[1].title=q2;state.tasks[1].priority='should';state.tasks[1].done=false;}
-  if(q3){state.tasks[2].title=q3;state.tasks[2].priority='could';state.tasks[2].done=false;}
-  saveState(); renderTasks(); closeRescue();
-  // Clear fields for next time
-  ['rescueQ1','rescueQ2','rescueQ3'].forEach(function(id){document.getElementById(id).value='';});
-  // Jump to tasks
-  switchTab('daily');
-  setTimeout(function(){jumpTo('sec-now',null);confetti(window.innerWidth/2,300);},300);
-});
-
-// ── 1. PRIVATE MODE DETECTION ──────────────────────
-function detectPrivateMode(){
-  try{localStorage.setItem('adhd-flow-test','1');localStorage.removeItem('adhd-flow-test');return false;}
-  catch(e){return true;}
+function closeWelcome(){
+  localStorage.setItem(WS_KEY,'1');
+  var el=document.getElementById('welcomeOverlay');
+  el.classList.add('hidden');
+  setTimeout(function(){el.style.display='none';},420);
 }
-function initPrivateModeCheck(){
-  if(detectPrivateMode()){
-    document.getElementById('privateOverlay').classList.remove('hidden');
-  }
-}
-document.getElementById('privateOk').addEventListener('click',function(){
-  document.getElementById('privateOverlay').classList.add('hidden');
-});
-
-// ── 2. AUTO-BACKUP REMINDER ─────────────────────────
-var REMIND_KEY=SK+'-remind-dismiss';
-function checkBackupReminder(){
-  var lastExport=localStorage.getItem(EXPORT_KEY);
-  var lastDismiss=localStorage.getItem(REMIND_KEY);
-  var now=new Date();
-  // Don't show if dismissed today
-  if(lastDismiss){
-    var d=new Date(lastDismiss);
-    if(now-d<24*60*60*1000) return;
-  }
-  var show=false;var msg='';
-  if(!lastExport){
-    show=true;msg='You\'ve never backed up your data. <strong>One tap protects everything.</strong>';
-  }else{
-    var days=Math.floor((now-new Date(lastExport))/(1000*60*60*24));
-    if(days>=7){show=true;msg='Last backup was <strong>'+days+' days ago</strong>. Export to keep your data safe.';}
-  }
-  if(show){
-    document.getElementById('backupReminderTxt').innerHTML=msg;
-    document.getElementById('backupReminder').classList.add('on');
-  }
-}
-document.getElementById('bkpExportNow').addEventListener('click',function(){
-  exportData();
-  document.getElementById('backupReminder').classList.remove('on');
-});
-document.getElementById('bkpDismiss').addEventListener('click',function(){
-  localStorage.setItem(REMIND_KEY,new Date().toISOString());
-  document.getElementById('backupReminder').classList.remove('on');
-});
-
-// ── 3. STREAK MILESTONE CELEBRATIONS ───────────────
-var MILESTONES=[7,14,30,100];
-var MILESTONE_MSGS={
-  7:'You\'ve shown up 7 days in a row. That\'s a real habit forming.',
-  14:'Two full weeks. Your brain is literally rewiring itself right now.',
-  30:'30 days. You didn\'t just build a habit — you built evidence that you can.',
-  100:'100 days. This is who you are now.'
-};
-var MILESTONE_EMOJIS={7:'🔥',14:'⚡',30:'🌟',100:'🏆'};
-
-function checkStreakMilestone(hid,newStreak,habitName,habitColor){
-  if(MILESTONES.indexOf(newStreak)===-1) return;
-  var mKey=SK+'-ms-'+hid+'-'+newStreak;
-  if(localStorage.getItem(mKey)) return;
-  localStorage.setItem(mKey,'1');
-  setTimeout(function(){showStreakCelebration(habitName,newStreak,habitColor);},500);
-}
-
-function showStreakCelebration(name,days,color){
-  var cel=document.getElementById('streakCel');
-  var glow=document.getElementById('streakCelGlow');
-  var daysEl=document.getElementById('streakCelDays');
-  var nameEl=document.getElementById('streakCelName');
-  var msgEl=document.getElementById('streakCelMsg');
-  var btn=document.getElementById('streakCelBtn');
-  glow.textContent=MILESTONE_EMOJIS[days]||'🔥';
-  glow.style.background='radial-gradient(circle,'+color+'33,'+color+'11)';
-  glow.style.border='2px solid '+color+'66';
-  daysEl.style.background='linear-gradient(135deg,'+color+',#fff)';
-  daysEl.style['-webkit-background-clip']='text';
-  daysEl.style['-webkit-text-fill-color']='transparent';
-  daysEl.style['background-clip']='text';
-  daysEl.textContent=days;
-  nameEl.textContent=name;
-  msgEl.textContent=MILESTONE_MSGS[days]||'Keep going!';
-  btn.style.background='linear-gradient(135deg,'+color+','+color+'aa)';
-  cel.classList.add('open');
-  // Big confetti
-  for(var i=0;i<3;i++){
-    (function(delay){setTimeout(function(){confetti(window.innerWidth/2,window.innerHeight/3);},delay);})(i*300);
-  }
-}
-document.getElementById('streakCelBtn').addEventListener('click',function(){
-  document.getElementById('streakCel').classList.remove('open');
-});
-document.getElementById('streakCel').addEventListener('click',function(e){
-  if(e.target===this) this.classList.remove('open');
-});
-
-// Patch habit toggle to check milestones
-var _origToggleHabit=toggleHabit;
-toggleHabit=function(hid,dk){
-  var updData=_origToggleHabit(hid,dk);
-  // Only check milestone when marking done (not undoing)
-  if(isHabitDone(hid,dk,updData)&&dk===todayKey()){
-    var streak=getStreak(hid,updData);
-    var habit=updData.habits.find(function(h){return h.id===hid;});
-    if(habit) checkStreakMilestone(hid,streak,habit.emoji+' '+habit.name,HBT_COLORS[habit.color]||'#10B981');
-  }
-  return updData;
-};
-
-// ── 4. WEEKLY INSIGHTS CARD ─────────────────────────
-var INSIGHTS_KEY=SK+'-insights-shown';
-
-function getMondayKeyAbs(date){
-  var d=new Date(date);var dow=d.getDay();var diff=dow===0?-6:1-dow;
-  d.setDate(d.getDate()+diff);return d.toISOString().split('T')[0];
-}
-
-function calcWeekStats(mondayKey){
-  var stats={days:0,tasks:0,sessions:0,wins:0,habitsTotal:0,habitsDone:0,topStreak:0,topHabitName:''};
-  var habData=loadHabits();
-  for(var i=0;i<7;i++){
-    var d=new Date(mondayKey+'T12:00:00');d.setDate(d.getDate()+i);
-    var dk=d.toISOString().split('T')[0];
-    try{
-      var ds=JSON.parse(localStorage.getItem(SK+'-'+dk));
-      if(ds){
-        stats.days++;
-        stats.tasks+=(ds.tasks||[]).filter(function(t){return t.done;}).length;
-        stats.sessions+=ds.sessions||0;
-        stats.wins+=(ds.wins||[]).length;
-      }
-    }catch(e){}
-    habData.habits.forEach(function(h){
-      stats.habitsTotal++;
-      if(isHabitDone(h.id,dk,habData)) stats.habitsDone++;
-    });
-  }
-  // Top streak
-  habData.habits.forEach(function(h){
-    var s=getStreak(h.id,habData);
-    if(s>stats.topStreak){stats.topStreak=s;stats.topHabitName=h.emoji+' '+h.name;}
-  });
-  return stats;
-}
-
-function checkWeeklyInsights(){
-  var el=document.getElementById('insightsCard');
-  if(el) el.remove(); // clear previous
-  var now=new Date();
-  if(now.getDay()!==1) return; // only on Mondays
-  var thisMon=getMondayKeyAbs(now);
-  if(localStorage.getItem(INSIGHTS_KEY)===thisMon) return; // already shown this Monday
-  // Calculate stats for LAST week
-  var lastMon=new Date(now);lastMon.setDate(lastMon.getDate()-7);
-  var lastMonKey=getMondayKeyAbs(lastMon);
-  var stats=calcWeekStats(lastMonKey);
-  if(stats.days===0) return; // no data last week, nothing to show
-  renderWeeklyInsights(stats,lastMonKey,thisMon);
-}
-
-function renderWeeklyInsights(stats,lastMonKey,thisMon){
-  var habRate=stats.habitsTotal>0?Math.round(stats.habitsDone/stats.habitsTotal*100):0;
-  var d=new Date(lastMonKey+'T12:00:00');
-  var endD=new Date(lastMonKey+'T12:00:00');endD.setDate(endD.getDate()+6);
-  var weekLabel=MONTH_ABBR[d.getMonth()]+' '+d.getDate()+' – '+endD.getDate();
-  var card=document.createElement('div');
-  card.id='insightsCard';
-  card.className='insights-card';
-  var col=habRate>=80?'var(--green)':habRate>=50?'var(--yellow)':'var(--orange)';
-  card.style.background='linear-gradient(135deg,color-mix(in srgb,'+col+' 8%,var(--card)),var(--card))';
-  card.style.borderColor='color-mix(in srgb,'+col+' 35%,transparent)';
-  card.innerHTML=
-    '<div class="insights-hdr">'+
-      '<div><div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tx3);margin-bottom:3px">📊 Last week · '+weekLabel+'</div>'+
-      '<div class="insights-title">Your week in review</div></div>'+
-      '<button class="insights-close" id="insightsClose">✕</button>'+
-    '</div>'+
-    '<div class="insights-grid">'+
-      '<div class="insights-stat"><span class="insights-stat-val">'+stats.tasks+'</span><span class="insights-stat-lbl">Tasks done</span></div>'+
-      '<div class="insights-stat"><span class="insights-stat-val">'+habRate+'%</span><span class="insights-stat-lbl">Habits rate</span></div>'+
-      '<div class="insights-stat"><span class="insights-stat-val">'+stats.sessions+'</span><span class="insights-stat-lbl">Focus sessions</span></div>'+
-      '<div class="insights-stat"><span class="insights-stat-val">'+stats.wins+'</span><span class="insights-stat-lbl">Wins logged</span></div>'+
-    '</div>'+
-    (stats.topStreak>0?'<div class="insights-streak">🔥 Longest streak: <strong>'+stats.topHabitName+'</strong> — '+stats.topStreak+' days</div>':'')+
-    '<button class="insights-cta" id="insightsCta" style="background:linear-gradient(135deg,'+col+',color-mix(in srgb,'+col+' 70%,var(--blue)))">Let\'s make this week even better →</button>';
-  var container=document.getElementById('daily-morning');
-  if(container) container.prepend(card);
-  // Event listeners
-  document.getElementById('insightsClose').addEventListener('click',function(){
-    card.remove();localStorage.setItem(INSIGHTS_KEY,thisMon);
-  });
-  document.getElementById('insightsCta').addEventListener('click',function(){
-    card.remove();localStorage.setItem(INSIGHTS_KEY,thisMon);
-  });
-}
+document.getElementById('wsNextBtn').addEventListener('click',function(){wsSlide<3?showWsSlide(wsSlide+1):closeWelcome();});
+document.getElementById('wsSkip').addEventListener('click',closeWelcome);
+document.querySelectorAll('.ws-dot').forEach(function(d){d.addEventListener('click',function(){showWsSlide(+d.dataset.s);});});
 
 // ── BACKUP & RESTORE ───────────────────────────────
-var EXPORT_KEY=SK+'-last-export';
-
 function openBackup(){
   updateLastExport();
   document.getElementById('backupSheet').classList.add('open');
@@ -2981,7 +2726,7 @@ function exportData(){
   var a=document.createElement('a');
   var now=new Date();
   var ds=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-  a.href=url;a.download='adhd-flow-backup-'+ds+'.json';a.click();
+  a.href=url;a.download='daily-flow-backup-'+ds+'.json';a.click();
   URL.revokeObjectURL(url);
   localStorage.setItem(EXPORT_KEY,new Date().toISOString());
   updateLastExport();
@@ -2995,11 +2740,9 @@ function importData(file){
         alert("This doesn't look like a Daily Flow Planner backup file.");return;
       }
       if(!confirm('This will replace all your current data with the backup from '+new Date(data.exported).toLocaleDateString()+'. Continue?')) return;
-      // Remove existing data
       var toDelete=[];
       for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf(SK)===0)toDelete.push(k);}
       toDelete.forEach(function(k){localStorage.removeItem(k);});
-      // Write backup
       Object.keys(data.entries).forEach(function(key){
         localStorage.setItem(key,JSON.stringify(data.entries[key]));
       });
@@ -3010,7 +2753,6 @@ function importData(file){
   };
   reader.readAsText(file);
 }
-
 document.getElementById('backupBtn').addEventListener('click',openBackup);
 document.getElementById('backupClose').addEventListener('click',closeBackup);
 document.getElementById('backupBackdrop').addEventListener('click',closeBackup);
@@ -3020,48 +2762,189 @@ document.getElementById('backupImportBtn').addEventListener('click',function(){
 });
 document.getElementById('backupFileInput').addEventListener('change',function(){
   if(this.files&&this.files[0]) importData(this.files[0]);
-  this.value=''; // reset so same file can be re-imported
+  this.value='';
 });
 
-// Hide FABs when keyboard open on mobile (input/textarea focused)
-if(window.innerWidth<768){
-  document.addEventListener('focusin',function(e){
-    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
-      document.getElementById('qcFab').classList.add('kbd-hide');
-      document.getElementById('tmrFab').classList.add('kbd-hide');
-    }
+// ── 3. STREAK MILESTONE CELEBRATIONS ───────────────
+var MILESTONES=[7,14,30,100];
+var MILESTONE_MSGS={
+  7:'You\'ve shown up 7 days in a row. That\'s a real habit forming.',
+  14:'Two full weeks. Your brain is literally rewiring itself right now.',
+  30:'30 days. You didn\'t just build a habit — you built evidence that you can.',
+  100:'100 days. This is who you are now.'
+};
+var MILESTONE_EMOJIS={7:'🔥',14:'⚡',30:'🌟',100:'🏆'};
+
+function checkStreakMilestone(hid,newStreak,habitName,habitColor){
+  if(MILESTONES.indexOf(newStreak)===-1) return;
+  var mKey=SK+'-ms-'+hid+'-'+newStreak;
+  if(localStorage.getItem(mKey)) return;
+  localStorage.setItem(mKey,'1');
+  setTimeout(function(){showStreakCelebration(habitName,newStreak,habitColor);},500);
+}
+function showStreakCelebration(name,days,color){
+  var cel=document.getElementById('streakCel');
+  var glow=document.getElementById('streakCelGlow');
+  var daysEl=document.getElementById('streakCelDays');
+  var nameEl=document.getElementById('streakCelName');
+  var msgEl=document.getElementById('streakCelMsg');
+  var btn=document.getElementById('streakCelBtn');
+  glow.textContent=MILESTONE_EMOJIS[days]||'🔥';
+  glow.style.background='radial-gradient(circle,'+color+'33,'+color+'11)';
+  glow.style.border='2px solid '+color+'66';
+  daysEl.style.background='linear-gradient(135deg,'+color+',#fff)';
+  daysEl.style['-webkit-background-clip']='text';
+  daysEl.style['-webkit-text-fill-color']='transparent';
+  daysEl.style['background-clip']='text';
+  daysEl.textContent=days;
+  nameEl.textContent=name;
+  msgEl.textContent=MILESTONE_MSGS[days]||'Keep going!';
+  btn.style.background='linear-gradient(135deg,'+color+','+color+'aa)';
+  cel.classList.add('open');
+  for(var i=0;i<3;i++){
+    (function(delay){setTimeout(function(){confetti(window.innerWidth/2,window.innerHeight/3);},delay);})(i*300);
+  }
+}
+document.getElementById('streakCelBtn').addEventListener('click',function(){
+  document.getElementById('streakCel').classList.remove('open');
+});
+document.getElementById('streakCel').addEventListener('click',function(e){
+  if(e.target===this) this.classList.remove('open');
+});
+
+// Patch habit toggle to check milestones
+var _origToggleHabit=toggleHabit;
+toggleHabit=function(hid,dk){
+  var updData=_origToggleHabit(hid,dk);
+  if(isHabitDone(hid,dk,updData)&&dk===todayKey()){
+    var streak=getStreak(hid,updData);
+    var habit=updData.habits.find(function(h){return h.id===hid;});
+    if(habit) checkStreakMilestone(hid,streak,habit.emoji+' '+habit.name,HBT_COLORS[habit.color]||'#10B981');
+  }
+  return updData;
+};
+
+// ── 4. WEEKLY INSIGHTS CARD ─────────────────────────
+var INSIGHTS_KEY=SK+'-insights-shown';
+
+function getMondayKeyAbs(date){
+  var d=new Date(date);var dow=d.getDay();var diff=dow===0?-6:1-dow;
+  d.setDate(d.getDate()+diff);return d.toISOString().split('T')[0];
+}
+function calcWeekStats(mondayKey){
+  var stats={days:0,tasks:0,sessions:0,wins:0,habitsTotal:0,habitsDone:0,topStreak:0,topHabitName:''};
+  var habData=loadHabits();
+  for(var i=0;i<7;i++){
+    var d=new Date(mondayKey+'T12:00:00');d.setDate(d.getDate()+i);
+    var dk=d.toISOString().split('T')[0];
+    try{
+      var ds=JSON.parse(localStorage.getItem(SK+'-'+dk));
+      if(ds){
+        stats.days++;
+        stats.tasks+=(ds.tasks||[]).filter(function(t){return t.done;}).length;
+        stats.sessions+=ds.sessions||0;
+        stats.wins+=(ds.wins||[]).length;
+      }
+    }catch(e){}
+    habData.habits.forEach(function(h){
+      stats.habitsTotal++;
+      if(isHabitDone(h.id,dk,habData)) stats.habitsDone++;
+    });
+  }
+  habData.habits.forEach(function(h){
+    var s=getStreak(h.id,habData);
+    if(s>stats.topStreak){stats.topStreak=s;stats.topHabitName=h.emoji+' '+h.name;}
   });
-  document.addEventListener('focusout',function(){
-    setTimeout(function(){
-      document.getElementById('qcFab').classList.remove('kbd-hide');
-      document.getElementById('tmrFab').classList.remove('kbd-hide');
-    },300);
+  return stats;
+}
+function checkWeeklyInsights(){
+  var el=document.getElementById('insightsCard');
+  if(el) el.remove();
+  var now=new Date();
+  if(now.getDay()!==1) return;
+  var thisMon=getMondayKeyAbs(now);
+  if(localStorage.getItem(INSIGHTS_KEY)===thisMon) return;
+  var lastMon=new Date(now);lastMon.setDate(lastMon.getDate()-7);
+  var lastMonKey=getMondayKeyAbs(lastMon);
+  var stats=calcWeekStats(lastMonKey);
+  if(stats.days===0) return;
+  renderWeeklyInsights(stats,lastMonKey,thisMon);
+}
+function renderWeeklyInsights(stats,lastMonKey,thisMon){
+  var habRate=stats.habitsTotal>0?Math.round(stats.habitsDone/stats.habitsTotal*100):0;
+  var d=new Date(lastMonKey+'T12:00:00');
+  var endD=new Date(lastMonKey+'T12:00:00');endD.setDate(endD.getDate()+6);
+  var weekLabel=MONTH_ABBR[d.getMonth()]+' '+d.getDate()+' – '+endD.getDate();
+  var card=document.createElement('div');
+  card.id='insightsCard';card.className='insights-card';
+  var col=habRate>=80?'var(--green)':habRate>=50?'var(--yellow)':'var(--orange)';
+  card.style.background='linear-gradient(135deg,color-mix(in srgb,'+col+' 8%,var(--card)),var(--card))';
+  card.style.borderColor='color-mix(in srgb,'+col+' 35%,transparent)';
+  card.innerHTML=
+    '<div class="insights-hdr">'+
+      '<div><div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tx3);margin-bottom:3px">📊 Last week · '+weekLabel+'</div>'+
+      '<div class="insights-title">Your week in review</div></div>'+
+      '<button class="insights-close" id="insightsClose">✕</button>'+
+    '</div>'+
+    '<div class="insights-grid">'+
+      '<div class="insights-stat"><span class="insights-stat-val">'+stats.tasks+'</span><span class="insights-stat-lbl">Tasks done</span></div>'+
+      '<div class="insights-stat"><span class="insights-stat-val">'+habRate+'%</span><span class="insights-stat-lbl">Habits rate</span></div>'+
+      '<div class="insights-stat"><span class="insights-stat-val">'+stats.sessions+'</span><span class="insights-stat-lbl">Focus sessions</span></div>'+
+      '<div class="insights-stat"><span class="insights-stat-val">'+stats.wins+'</span><span class="insights-stat-lbl">Wins logged</span></div>'+
+    '</div>'+
+    (stats.topStreak>0?'<div class="insights-streak">🔥 Longest streak: <strong>'+stats.topHabitName+'</strong> — '+stats.topStreak+' days</div>':'')+
+    '<button class="insights-cta" id="insightsCta" style="background:linear-gradient(135deg,'+col+',color-mix(in srgb,'+col+' 70%,var(--blue)))">Let\'s make this week even better →</button>';
+  var container=document.getElementById('daily-morning');
+  if(container) container.prepend(card);
+  document.getElementById('insightsClose').addEventListener('click',function(){
+    card.remove();localStorage.setItem(INSIGHTS_KEY,thisMon);
+  });
+  document.getElementById('insightsCta').addEventListener('click',function(){
+    card.remove();localStorage.setItem(INSIGHTS_KEY,thisMon);
   });
 }
 
-// ── WELCOME SCREEN ─────────────────────────────────
-var wsSlide=0;var WS_KEY='adhd-flow-v3-welcomed';
-function initWelcome(){
-  if(localStorage.getItem(WS_KEY)) return;
-  document.getElementById('welcomeOverlay').style.display='flex';
+// ── 2. AUTO-BACKUP REMINDER ─────────────────────────
+var REMIND_KEY=SK+'-remind-dismiss';
+function checkBackupReminder(){
+  var lastExport=localStorage.getItem(EXPORT_KEY);
+  var lastDismiss=localStorage.getItem(REMIND_KEY);
+  var now=new Date();
+  if(lastDismiss&&(now-new Date(lastDismiss))<24*60*60*1000) return;
+  var show=false;var msg='';
+  if(!lastExport){
+    show=true;msg='You\'ve never backed up your data. <strong>One tap protects everything.</strong>';
+  }else{
+    var days=Math.floor((now-new Date(lastExport))/(1000*60*60*24));
+    if(days>=7){show=true;msg='Last backup was <strong>'+days+' days ago</strong>. Export to keep your data safe.';}
+  }
+  if(show){
+    document.getElementById('backupReminderTxt').innerHTML=msg;
+    document.getElementById('backupReminder').classList.add('on');
+  }
 }
-function showWsSlide(n){
-  wsSlide=n;
-  document.querySelectorAll('.ws-slide').forEach(function(s){s.classList.remove('act');});
-  document.getElementById('ws'+n).classList.add('act');
-  document.querySelectorAll('.ws-dot').forEach(function(d){d.classList.remove('act');});
-  document.querySelector('.ws-dot[data-s="'+n+'"]').classList.add('act');
-  document.getElementById('wsNextBtn').textContent=n===3?'Start my first day →':'Next →';
+document.getElementById('bkpExportNow').addEventListener('click',function(){
+  exportData();
+  document.getElementById('backupReminder').classList.remove('on');
+});
+document.getElementById('bkpDismiss').addEventListener('click',function(){
+  localStorage.setItem(REMIND_KEY,new Date().toISOString());
+  document.getElementById('backupReminder').classList.remove('on');
+});
+
+// ── 1. PRIVATE MODE DETECTION ──────────────────────
+function detectPrivateMode(){
+  try{localStorage.setItem('adhd-flow-test','1');localStorage.removeItem('adhd-flow-test');return false;}
+  catch(e){return true;}
 }
-function closeWelcome(){
-  localStorage.setItem(WS_KEY,'1');
-  var el=document.getElementById('welcomeOverlay');
-  el.classList.add('hidden');
-  setTimeout(function(){el.style.display='none';},420);
+function initPrivateModeCheck(){
+  if(detectPrivateMode()){
+    document.getElementById('privateOverlay').classList.remove('hidden');
+  }
 }
-document.getElementById('wsNextBtn').addEventListener('click',function(){wsSlide<3?showWsSlide(wsSlide+1):closeWelcome();});
-document.getElementById('wsSkip').addEventListener('click',closeWelcome);
-document.querySelectorAll('.ws-dot').forEach(function(d){d.addEventListener('click',function(){showWsSlide(+d.dataset.s);});});
+document.getElementById('privateOk').addEventListener('click',function(){
+  document.getElementById('privateOverlay').classList.add('hidden');
+});
 
 // ── BOOT ──────────────────────────────────────────
 loadState();applyTheme(state.theme);initDate();
