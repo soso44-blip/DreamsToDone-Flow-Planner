@@ -274,15 +274,21 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
 
 /* ── HEADER ──────────────────────────────────── */
 .hdr{flex-shrink:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--card);border-bottom:1px solid var(--bd);box-shadow:var(--sh);z-index:10;position:relative}
-.logo{font-family:'Fraunces',serif;font-weight:800;font-size:1.05rem;color:var(--orange);display:flex;align-items:center;gap:6px}
-.hdr-mid{position:absolute;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none}
+.logo{font-family:'Fraunces',serif;font-weight:800;font-size:1.05rem;color:var(--orange);display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;overflow:hidden;max-width:160px}
+.hdr-mid{position:absolute;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;z-index:0}
 .hdr-day{font-family:'Fraunces',serif;font-weight:700;font-size:.86rem;color:var(--tx);line-height:1.1}
 .hdr-dt{font-size:.68rem;color:var(--tx3)}
-.hdr-r{display:flex;align-items:center;gap:8px}
+.hdr-r{display:flex;align-items:center;gap:6px;flex-shrink:0;z-index:1;position:relative}
 .save-pill{font-size:.68rem;color:var(--green);font-weight:600;padding:2px 9px;border-radius:20px;background:var(--green-l);opacity:0;transition:opacity .3s;white-space:nowrap}
 .save-pill.on{opacity:1}
-.btn-ico{width:36px;height:36px;border:1px solid var(--bd);background:var(--card2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all var(--t);color:var(--tx2)}
+.btn-ico{width:34px;height:34px;border:1px solid var(--bd);background:var(--card2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.88rem;transition:all var(--t);color:var(--tx2);flex-shrink:0}
 .btn-ico:hover{background:var(--bg-sub)}
+@media(max-width:480px){
+  .save-pill{display:none}
+  .logo{max-width:32px;font-size:1.1rem}
+  .btn-ico{width:30px;height:30px;font-size:.78rem;gap:4px}
+  .hdr-r{gap:4px}
+}
 
 /* ── TAB CONTENT ─────────────────────────────── */
 .tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -741,7 +747,12 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
   #printView{display:block!important}
 }
 
-/* Day sub-tabs */
+/* Bottom padding so FABs don't cover content on mobile */
+@media(max-width:767px){
+  .tab-panel{padding-bottom:160px}
+  .qc-fab,.tmr-fab{transition:all var(--t),opacity .2s}
+  .qc-fab.kbd-hide,.tmr-fab.kbd-hide{opacity:0;pointer-events:none}
+}
 .day-subtabs{display:flex;gap:4px;padding:3px;background:var(--bg-sub);border-radius:calc(var(--rs)+2px);margin-bottom:18px}
 .day-subtab{flex:1;padding:9px 4px;border:none;border-radius:var(--rs);background:transparent;font-size:.82rem;font-weight:600;color:var(--tx3);cursor:pointer;transition:all var(--t)}
 .day-subtab.act{background:var(--card);box-shadow:var(--sh)}
@@ -941,7 +952,7 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
       <div class="hdr-dt"  id="hdrDt">Jan 1</div>
     </div>
     <div class="hdr-r">
-      <div style="font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--yellow);color:#1A110A;letter-spacing:.06em">DEMO</div>
+      <div style="font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--yellow);color:#1A110A;letter-spacing:.06em;flex-shrink:0">DEMO</div>
       <div class="save-pill" id="savePill">✓ Saved</div>
       <button class="btn-ico" id="backupBtn" title="Backup & Restore">💾</button>
       <button class="btn-ico" id="printBtn"  title="Print today">🖨️</button>
@@ -1492,7 +1503,13 @@ function initDate(){
 }
 
 // ── THEME ─────────────────────────────────────────
-function applyTheme(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('darkBtn').textContent=t==='dark'?'☀️':'🌙';state.theme=t;}
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('darkBtn').textContent=t==='dark'?'☀️':'🌙';
+  state.theme=t;
+  var g=document.getElementById('tbGrid');
+  if(g&&g.children.length>0) renderTimeBlocks();
+}
 document.getElementById('darkBtn').addEventListener('click',function(){applyTheme(state.theme==='dark'?'light':'dark');saveState();});
 
 // ── MORNING ───────────────────────────────────────
@@ -1611,8 +1628,8 @@ function updateProgress(){var done=state.tasks.filter(function(t){return t.done;
 
 // ── TIME BLOCKS ───────────────────────────────────
 var HOURS=['6 AM','7 AM','8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM','7 PM','8 PM','9 PM','10 PM'];
-var TB_LT=[{bg:'#FFF0EB',br:'#FF6B35'},{bg:'#F0EBFF',br:'#8B5CF6'},{bg:'#FFFBE0',br:'#F59E0B'},{bg:'#EBFFF5',br:'#10B981'},{bg:'#EBF4FF',br:'#3B82F6'}];
-var TB_DK=[{bg:'#2A1810',br:'#FF6B35'},{bg:'#1A1030',br:'#8B5CF6'},{bg:'#2A1E08',br:'#F59E0B'},{bg:'#0A2018',br:'#10B981'},{bg:'#0E1B30',br:'#3B82F6'}];
+var TB_LT=[{bg:'#FFF0E6',br:'#E8621A'},{bg:'#F2EEF9',br:'#7A5CB8'},{bg:'#FFF8E0',br:'#F0A020'},{bg:'#EAFAF3',br:'#2E9B68'},{bg:'#EBF3FF',br:'#3870C8'}];
+var TB_DK=[{bg:'rgba(255,140,66,.14)',br:'#FF8C42'},{bg:'rgba(199,125,255,.14)',br:'#C77DFF'},{bg:'rgba(255,209,102,.14)',br:'#FFD166'},{bg:'rgba(6,214,160,.14)',br:'#06D6A0'},{bg:'rgba(76,201,240,.14)',br:'#4CC9F0'}];
 var tbRendered=false;
 document.getElementById('tbToggle').addEventListener('click',function(){
   var btn=this;var col=document.getElementById('tbCollapse');var isOpen=col.classList.contains('open');
@@ -3007,6 +3024,22 @@ document.getElementById('backupFileInput').addEventListener('change',function(){
   this.value=''; // reset so same file can be re-imported
 });
 
+// Hide FABs when keyboard open on mobile (input/textarea focused)
+if(window.innerWidth<768){
+  document.addEventListener('focusin',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
+      document.getElementById('qcFab').classList.add('kbd-hide');
+      document.getElementById('tmrFab').classList.add('kbd-hide');
+    }
+  });
+  document.addEventListener('focusout',function(){
+    setTimeout(function(){
+      document.getElementById('qcFab').classList.remove('kbd-hide');
+      document.getElementById('tmrFab').classList.remove('kbd-hide');
+    },300);
+  });
+}
+
 // ── WELCOME SCREEN ─────────────────────────────────
 var wsSlide=0;var WS_KEY='adhd-flow-v3-welcomed';
 function initWelcome(){
@@ -3031,27 +3064,263 @@ document.getElementById('wsNextBtn').addEventListener('click',function(){wsSlide
 document.getElementById('wsSkip').addEventListener('click',closeWelcome);
 document.querySelectorAll('.ws-dot').forEach(function(d){d.addEventListener('click',function(){showWsSlide(+d.dataset.s);});});
 
-// ── DEMO DATA INJECTION ────────────────────────────
+// ── DEMO DATA ─────────────────────────────────────
 (function(){
-  var SK_D='adhd-flow-v3';
-  function daysAgo(n){var d=new Date();d.setDate(d.getDate()-n);return d.toISOString().split('T')[0];}
-  var TODAY=daysAgo(0),YEST=daysAgo(1),D2=daysAgo(2),D3=daysAgo(3),D5=daysAgo(5),D6=daysAgo(6);
-  var patterns={1:[1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,0],2:[1,0,0,1,0,0,1,1,0,1,0,0,1,0,0,1,1,0,0,1,0,0,0,1,0,0,1,0],3:[1,1,1,0,1,1,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,0,1,1,0,1,0,1],4:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1],5:[0,1,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0]};
+  var S='adhd-flow-v3';
+  function ago(n){var d=new Date();d.setDate(d.getDate()-n);return d.toISOString().split('T')[0];}
+  var D0=ago(0),D1=ago(1),D2=ago(2),D3=ago(3),D4=ago(4),D5=ago(5),D6=ago(6),D7=ago(7),D8=ago(8),D9=ago(9),D10=ago(10),D14=ago(14),D20=ago(20);
+
+  // ── TODAY ──
+  localStorage.setItem(S+'-'+D0,JSON.stringify({
+    energy:4,mood:'focused',
+    intention:'Finish the landing page and protect the morning deep work block',
+    brainDump:'Reply to Marcus about the project timeline\nBook dentist — been putting it off 3 weeks\nCheck if staging server is back up\nRemember to pick up groceries\nSend invoice to Studio 44 (overdue!)\nIdea: add onboarding tooltips to the dashboard',
+    tasks:[
+      {id:1,title:'Finalise landing page mockup',priority:'must',est:'2h',done:false,exp:true,subs:['Review client feedback from Tuesday call','Update hero section copy and layout','Export all assets for dev handoff']},
+      {id:2,title:'Reply to urgent client emails',priority:'should',est:'30m',done:true,exp:false,subs:['','','']},
+      {id:3,title:'Review team pull requests',priority:'could',est:'45m',done:false,exp:false,subs:['','','']}
+    ],
+    blocks:{h9:{txt:'Deep work — landing page',col:0},h10:{txt:'Deep work — landing page',col:0},h11:{txt:'Team standup',col:1},h13:{txt:'Client review call',col:1},h15:{txt:'Walk + reset',col:3}},
+    rewards:[{id:1,e:'🚶',t:'5-min walk outside'},{id:2,e:'📺',t:'Watch a YouTube video'},{id:3,e:'🍫',t:'Grab a snack'},{id:4,e:'💃',t:'Dance to one song'},{id:5,e:'✏️',t:'Doodle for 5 mins'},{id:6,e:'☕',t:'Make a nice drink'},{id:7,e:'📱',t:'5 min social scroll'},{id:8,e:'🛋️',t:'Stare at the ceiling'}],
+    wins:['Woke up at 7am without snoozing 🎉','Started with the hardest task — actually opened the file','Said no to an unnecessary meeting'],
+    refl:{
+      q1:'Morning deep work was solid — got more done before 10am than I usually do all day. The no-meeting block really worked.',
+      q2:'The afternoon client call ran 40 minutes over and completely derailed my flow state. Hard to recover from that.',
+      q3:'Protect the morning ruthlessly. No calls before 11am. Set that boundary tomorrow.'
+    },
+    sessions:2
+  }));
+
+  // ── YESTERDAY ──
+  localStorage.setItem(S+'-'+D1,JSON.stringify({
+    energy:2,mood:'scattered',
+    intention:'Just get the weekly report done and not drop anything important',
+    brainDump:'Everything feels like too much today. Low battery brain.',
+    tasks:[
+      {id:1,title:'Submit weekly report',priority:'must',est:'1h',done:true,exp:false,subs:['','','']},
+      {id:2,title:'Review design mockups',priority:'should',est:'45m',done:false,exp:false,subs:['','','']},
+      {id:3,title:'Tidy desk',priority:'could',est:'15m',done:false,exp:false,subs:['','','']}
+    ],
+    blocks:{h10:{txt:'Weekly report',col:0},h11:{txt:'Team check-in',col:1},h14:{txt:'Design review (skipped)',col:2}},
+    rewards:[{id:1,e:'🚶',t:'5-min walk outside'},{id:2,e:'☕',t:'Make a nice drink'}],
+    wins:['Submitted the report on time even on a low-energy day','Remembered to eat lunch'],
+    refl:{
+      q1:'Got the must-done done. That is enough for a 2-energy day.',
+      q2:"Didn't sleep well — it cascaded into everything. Brain fog all afternoon.",
+      q3:'Early night tonight. Screens off at 9pm. No exceptions.'
+    },
+    sessions:1
+  }));
+
+  // ── 2 DAYS AGO — peak day ──
+  localStorage.setItem(S+'-'+D2,JSON.stringify({
+    energy:5,mood:'motivated',
+    intention:'Make this a peak day — use the energy while it is here',
+    brainDump:"Feeling sharp. Let's use it. Clear the big stuff today.",
+    tasks:[
+      {id:1,title:'Complete full homepage redesign',priority:'must',est:'3h',done:true,exp:false,subs:['','','']},
+      {id:2,title:'Send client progress update',priority:'should',est:'15m',done:true,exp:false,subs:['','','']},
+      {id:3,title:'Competitor research',priority:'could',est:'1h',done:true,exp:false,subs:['','','']}
+    ],
+    blocks:{h8:{txt:'Deep work — design',col:0},h9:{txt:'Deep work — design',col:0},h10:{txt:'Deep work — design',col:0},h11:{txt:'Emails + comms',col:1},h14:{txt:'Research',col:2},h15:{txt:'Run + shower',col:3}},
+    rewards:[{id:1,e:'🚶',t:'5-min walk outside'},{id:2,e:'☕',t:'Make a nice drink'}],
+    wins:['Finished the ENTIRE homepage in one session 🏆','All 3 tasks done by 3pm','Went for a run for first time this week','Inbox zero by end of day'],
+    refl:{
+      q1:'Everything clicked today. Energy + focus + no interruptions = my best work. This is what flow feels like.',
+      q2:'Absolutely nothing. A rare perfect day.',
+      q3:'Recreate the conditions: early start, no phone until noon, desk clear, headphones on. That formula works.'
+    },
+    sessions:4
+  }));
+
+  // ── 3 DAYS AGO ──
+  localStorage.setItem(S+'-'+D3,JSON.stringify({
+    energy:3,mood:'okay',
+    intention:'Keep the momentum from yesterday, even at half speed',
+    brainDump:'Good enough is good enough today.',
+    tasks:[
+      {id:1,title:'Fix critical navbar bug',priority:'must',est:'1h',done:true,exp:false,subs:['','','']},
+      {id:2,title:'Write blog post intro',priority:'should',est:'45m',done:true,exp:false,subs:['','','']},
+      {id:3,title:'15-minute meditation',priority:'could',est:'15m',done:false,exp:false,subs:['','','']}
+    ],
+    blocks:{h9:{txt:'Dev work',col:0},h10:{txt:'Dev work',col:0},h13:{txt:'Writing time',col:2}},
+    rewards:[{id:1,e:'🚶',t:'5-min walk outside'}],
+    wins:['Fixed the bug that had been bothering me for 3 days','Got the blog post started — hardest part done'],
+    refl:{
+      q1:'Decent day. 2/3 tasks done is still a win, especially after the high of yesterday.',
+      q2:'Lost 40 mins to Twitter mid-morning. Deleted the app from my phone again.',
+      q3:'Phone in a drawer during deep work. No exceptions. Make it friction to access.'
+    },
+    sessions:2
+  }));
+
+  // ── 4 DAYS AGO ──
+  localStorage.setItem(S+'-'+D4,JSON.stringify({
+    energy:3,mood:'okay',
+    intention:'Steady progress, no heroics needed',
+    brainDump:'',
+    tasks:[
+      {id:1,title:'Prepare presentation deck',priority:'must',est:'2h',done:true,exp:false,subs:['','','']},
+      {id:2,title:'Update project tracker',priority:'should',est:'30m',done:true,exp:false,subs:['','','']},
+      {id:3,title:'Call mum',priority:'could',est:'30m',done:true,exp:false,subs:['','','']}
+    ],
+    blocks:{h9:{txt:'Presentation work',col:0},h10:{txt:'Presentation work',col:0},h14:{txt:'Admin',col:1},h15:{txt:'Personal call',col:4}},
+    rewards:[{id:1,e:'🍫',t:'Grab a snack'}],
+    wins:['3/3 tasks done','Called mum — she was so happy to hear from me','Presentation done ahead of deadline'],
+    refl:{
+      q1:'Solid, consistent day. Not flashy but everything got done. That matters.',
+      q2:'Hit a wall around 2pm. Needed a proper break, not just scrolling.',
+      q3:'Real breaks restore energy. Scrolling does not. Pick one.'
+    },
+    sessions:2
+  }));
+
+  // ── 5 DAYS AGO — overwhelmed ──
+  localStorage.setItem(S+'-'+D5,JSON.stringify({
+    energy:1,mood:'overwhelmed',
+    intention:'Survive. Just the one thing.',
+    brainDump:'Everything feels like too much. Too many tabs open in my head.',
+    tasks:[
+      {id:1,title:'Pay overdue invoice',priority:'must',est:'15m',done:true,exp:false,subs:['','','']},
+      {id:2,title:'Prepare for team meeting',priority:'should',est:'1h',done:false,exp:false,subs:['','','']},
+      {id:3,title:'Gym session',priority:'could',est:'1h',done:false,exp:false,subs:['','','']}
+    ],
+    blocks:{h11:{txt:'Invoice sorted',col:0}},
+    rewards:[{id:1,e:'🛋️',t:'Stare at the ceiling'}],
+    wins:['Paid the invoice — one less thing hanging over me'],
+    refl:{
+      q1:"Paid the invoice. That's the whole win today. And it is enough.",
+      q2:'Burnout is creeping in. The body is asking for rest and I am ignoring it.',
+      q3:'Rest is not laziness. Schedule nothing this weekend. Protect it.'
+    },
+    sessions:0
+  }));
+
+  // ── 6 DAYS AGO — strong Friday ──
+  localStorage.setItem(S+'-'+D6,JSON.stringify({
+    energy:4,mood:'motivated',
+    intention:'Clear the backlog and finish the week strong',
+    brainDump:'',
+    tasks:[
+      {id:1,title:'Clear email backlog',priority:'must',est:'1h',done:true,exp:false,subs:['','','']},
+      {id:2,title:'Update project board',priority:'should',est:'30m',done:true,exp:false,subs:['','','']},
+      {id:3,title:'30-minute run',priority:'could',est:'30m',done:true,exp:false,subs:['','','']}
+    ],
+    blocks:{h9:{txt:'Inbox zero mission',col:1},h10:{txt:'Inbox zero mission',col:1},h11:{txt:'Project board',col:1},h15:{txt:'Run + recover',col:3}},
+    rewards:[{id:1,e:'🚶',t:'5-min walk outside'}],
+    wins:['Inbox ZERO — first time in 3 months 🏆','All 3 tasks complete','Went for a run'],
+    refl:{
+      q1:'Full clean sweep. 3/3, inbox zero, physical movement. A genuinely good Friday.',
+      q2:'Nothing significant today. The week started rough but ended strong.',
+      q3:'Weekly review every Friday = game changer. Block it permanently.'
+    },
+    sessions:3
+  }));
+
+  // ── Earlier days (for history/patterns) ──
+  var simpledays=[
+    {d:D7,e:3,m:'okay',t1:'Draft proposal',t2:'Team 1:1',t3:'Inbox',done:[true,true,false],s:1,w:['Finished the draft','Good 1:1 with Sarah'],q1:'Good day overall.',q2:'Afternoon slump was rough.',q3:'Coffee after 2pm is a bad idea.'},
+    {d:D8,e:4,m:'focused',t1:'Code review sprint',t2:'Write tests',t3:'Documentation',done:[true,true,false],s:3,w:['Code review done','Tests passing'],q1:'Great focus day.',q2:'Nothing major.',q3:'Keep the morning clear.'},
+    {d:D9,e:2,m:'scattered',t1:'Fix reported bug',t2:'Reply to support',t3:'Planning doc',done:[true,false,false],s:1,w:['Fixed the bug'],q1:'Low energy but got the critical thing done.',q2:'Could not concentrate at all.',q3:'Accept the low days.'},
+    {d:D10,e:4,m:'motivated',t1:'Feature launch prep',t2:'Write launch email',t3:'Update changelog',done:[true,true,true],s:4,w:['Launched the feature!','Team celebrated together','All tasks done'],q1:'Launch day! Proud of the team and myself.',q2:'Nerves before launch were draining.',q3:'Celebrate more. It matters.'},
+    {d:D14,e:3,m:'meh',t1:'Weekly planning',t2:'Client call',t3:'Admin catch-up',done:[true,true,false],s:2,w:['Planning done','Good client call'],q1:'Functional day.',q2:'Admin spiral cost me an hour.',q3:'Time-box admin to 30 mins max.'},
+    {d:D20,e:5,m:'hyperfocus',t1:'Build new feature',t2:'Write unit tests',t3:'Deploy to staging',done:[true,true,true],s:6,w:['Built entire feature in one hyperfocus session','Deployed to staging','PR approved'],q1:'Hyperfocus kicked in at 9am and did not stop until 5pm. Rare and magical.',q2:'Forgot to eat. Again.',q3:'Set a lunch alarm on hyperfocus days.'}
+  ];
+  simpledays.forEach(function(sd){
+    localStorage.setItem(S+'-'+sd.d,JSON.stringify({
+      energy:sd.e,mood:sd.m,intention:'',brainDump:'',
+      tasks:[
+        {id:1,title:sd.t1,priority:'must',est:'1h',done:sd.done[0],exp:false,subs:['','','']},
+        {id:2,title:sd.t2,priority:'should',est:'30m',done:sd.done[1],exp:false,subs:['','','']},
+        {id:3,title:sd.t3,priority:'could',est:'30m',done:sd.done[2],exp:false,subs:['','','']}
+      ],
+      blocks:{},rewards:[{id:1,e:'🚶',t:'5-min walk outside'}],
+      wins:sd.w,refl:{q1:sd.q1,q2:sd.q2,q3:sd.q3},sessions:sd.s
+    }));
+  });
+
+  // ── HABITS ──
+  var pats={
+    1:[1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1],
+    2:[1,0,0,1,0,0,1,1,0,1,0,0,1,0,1,1,1,0,0,1,0,0,1,1,0,1,0,0,1,0],
+    3:[1,1,1,0,1,1,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,0,1,0,1,1,1],
+    4:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1],
+    5:[0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,1,0]
+  };
   var completions={};
-  for(var back=0;back<28;back++){var dk=daysAgo(back);completions[dk]=[];[1,2,3,4,5].forEach(function(hid){if(patterns[hid][back])completions[dk].push(hid);});}
-  localStorage.setItem(SK_D+'-habits',JSON.stringify({habits:[{id:1,name:'Drink water',emoji:'💧',color:0},{id:2,name:'Exercise',emoji:'🏃',color:1},{id:3,name:'Read 10 mins',emoji:'📚',color:2},{id:4,name:'Take meds',emoji:'💊',color:3},{id:5,name:'Bed by 11pm',emoji:'😴',color:4}],completions:completions}));
-  localStorage.setItem(SK_D+'-'+TODAY,JSON.stringify({energy:4,mood:'focused',intention:'Finalise the landing page and protect my deep work block this morning',brainDump:'Reply to Marcus about the project timeline\nBook dentist appointment — been putting this off\nCheck if the staging server is back up\nNeed to pick up groceries later\nRemember to send the invoice to Studio 44\nIdea: add onboarding tooltips to the dashboard',tasks:[{id:1,title:'Finalise landing page mockup',priority:'must',est:'2h',done:false,exp:true,subs:['Review feedback from yesterday call','Update hero section copy','Export assets for dev handoff']},{id:2,title:'Reply to client emails',priority:'should',est:'30m',done:true,exp:false,subs:['','','']},{id:3,title:'Review team pull requests',priority:'could',est:'45m',done:false,exp:false,subs:['','','']}],blocks:{h9:{txt:'Deep work — landing page',col:0},h10:{txt:'Deep work — landing page',col:0},h11:{txt:'Team standup',col:1},h14:{txt:'Client review call',col:1},h15:{txt:'Walk + reset',col:3}},rewards:[{id:1,e:'🚶',t:'5-min walk outside'},{id:2,e:'📺',t:'Watch a YouTube video'},{id:3,e:'🍫',t:'Grab a snack'},{id:4,e:'💃',t:'Dance to one song'},{id:5,e:'✏️',t:'Doodle for 5 mins'},{id:6,e:'☕',t:'Make a nice drink'},{id:7,e:'📱',t:'5 min social scroll'},{id:8,e:'🛋️',t:'Stare at the ceiling'}],wins:['Woke up at 7am without snoozing 🎉','Started with the hardest task first — actually did it'],refl:{q1:'Morning focus session was solid — more done before 10am than usual',q2:'',q3:''},sessions:2}));
-  localStorage.setItem(SK_D+'-'+YEST,JSON.stringify({energy:2,mood:'scattered',intention:'Just get through the day without dropping anything important',brainDump:'Scattered is the word today.',tasks:[{id:1,title:'Prepare weekly report',priority:'must',est:'1h',done:true,exp:false,subs:['','','']},{id:2,title:'Review design mockups',priority:'should',est:'45m',done:false,exp:false,subs:['','','']},{id:3,title:'Organise desk',priority:'could',est:'15m',done:false,exp:false,subs:['','','']}],blocks:{h10:{txt:'Weekly report',col:0},h11:{txt:'Team check-in',col:1}},rewards:[{id:1,e:'🚶',t:'5-min walk outside'}],wins:['Submitted the weekly report on time'],refl:{q1:'Got the must-done. That is enough.',q2:"Didn\'t sleep well — it cascaded into the whole day",q3:'Early night tonight'},sessions:1}));
-  localStorage.setItem(SK_D+'-'+D2,JSON.stringify({energy:5,mood:'motivated',intention:'Make this a peak performance day',brainDump:"Feeling sharp. Let\'s use it.",tasks:[{id:1,title:'Complete homepage redesign',priority:'must',est:'3h',done:true,exp:false,subs:['','','']},{id:2,title:'Send client update email',priority:'should',est:'15m',done:true,exp:false,subs:['','','']},{id:3,title:'Research competitors',priority:'could',est:'1h',done:true,exp:false,subs:['','','']}],blocks:{h8:{txt:'Deep work — design',col:0},h9:{txt:'Deep work',col:0},h10:{txt:'Deep work',col:0},h11:{txt:'Emails',col:1},h14:{txt:'Research',col:2}},rewards:[{id:1,e:'🚶',t:'5-min walk outside'}],wins:['Finished the entire homepage in ONE session 🏆','All 3 tasks done by 3pm','Went for a run'],refl:{q1:'Everything clicked today.',q2:'Nothing — actually a great day.',q3:'Recreate this: early start, no phone until noon'},sessions:4}));
-  localStorage.setItem(SK_D+'-'+D3,JSON.stringify({energy:3,mood:'okay',intention:'Keep momentum going',brainDump:'',tasks:[{id:1,title:'Fix navbar bug',priority:'must',est:'1h',done:true,exp:false,subs:['','','']},{id:2,title:'Write blog post intro',priority:'should',est:'45m',done:true,exp:false,subs:['','','']},{id:3,title:'15-min meditation',priority:'could',est:'15m',done:false,exp:false,subs:['','','']}],blocks:{h9:{txt:'Dev work',col:0},h13:{txt:'Writing',col:2}},rewards:[{id:1,e:'🚶',t:'5-min walk outside'}],wins:['Fixed the bug that was bothering me for days'],refl:{q1:'2/3 done is still a win',q2:'Lost 45 mins to Twitter',q3:'Phone in drawer during deep work'},sessions:2}));
-  localStorage.setItem(SK_D+'-'+D5,JSON.stringify({energy:1,mood:'overwhelmed',intention:'Survive',brainDump:'Everything feels too much.',tasks:[{id:1,title:'Pay overdue invoice',priority:'must',est:'15m',done:true,exp:false,subs:['','','']},{id:2,title:'Team presentation prep',priority:'should',est:'2h',done:false,exp:false,subs:['','','']},{id:3,title:'Gym',priority:'could',est:'1h',done:false,exp:false,subs:['','','']}],blocks:{},rewards:[{id:1,e:'🛋️',t:'Stare at the ceiling'}],wins:['Paid the invoice — one less thing'],refl:{q1:"Paid the invoice. That\'s the win.",q2:'Burnout creeping in.',q3:'Rest is productive'},sessions:0}));
-  localStorage.setItem(SK_D+'-'+D6,JSON.stringify({energy:4,mood:'motivated',intention:'Clear the backlog before the weekend',brainDump:'',tasks:[{id:1,title:'Clear email backlog',priority:'must',est:'1h',done:true,exp:false,subs:['','','']},{id:2,title:'Update project tracker',priority:'should',est:'30m',done:true,exp:false,subs:['','','']},{id:3,title:'30-min run',priority:'could',est:'30m',done:true,exp:false,subs:['','','']}],blocks:{h9:{txt:'Inbox zero mission',col:1},h10:{txt:'Inbox zero mission',col:1},h14:{txt:'Run + shower',col:3}},rewards:[{id:1,e:'🚶',t:'5-min walk outside'}],wins:['Inbox ZERO 🏆','All 3 tasks done','Went for a run'],refl:{q1:'Full sweep! 3/3 and inbox zero.',q2:'Nothing.',q3:'Weekly review on Fridays = game changer'},sessions:3}));
-  var now2=new Date();var dow2=now2.getDay();var diff2=dow2===0?-6:1-dow2;var monday=new Date(now2);monday.setDate(monday.getDate()+diff2);var mondayKey=monday.toISOString().split('T')[0];var weekDays={};var dayTasks=[['Weekly review & planning','Prepare standup slides','Clear inbox to zero'],['Landing page mockup','Send outstanding invoices',''],['Doctor appointment 10am','Light admin only',''],['Deep work day — no meetings','Code review for Sarah',''],['Week wrap-up','Plan next week','Team drinks 6pm']];var dayNotes=['Good energy on Mondays — use it','Landing page is the priority this week','Half day — be realistic','Block calendar for focus','Finish strong then rest'];for(var i=0;i<7;i++){var wd=new Date(monday);wd.setDate(wd.getDate()+i);var wdk=wd.toISOString().split('T')[0];weekDays[wdk]={tasks:i<5?dayTasks[i]:['','',''],note:i<5?dayNotes[i]:''};}
-  localStorage.setItem(SK_D+'-wplan-'+mondayKey,JSON.stringify({intention:'Get the landing page across the finish line — everything else is secondary',days:weekDays}));
-  var now3=new Date();var mk=now3.getFullYear()+'-'+String(now3.getMonth()+1).padStart(2,'0');
-  localStorage.setItem(SK_D+'-mplan-'+mk,JSON.stringify({goal:'Ship the redesign project before the 28th and actually take weekends off',days:{}}));
-  localStorage.setItem(SK_D+'-global',JSON.stringify({theme:'light'}));
+  for(var b=0;b<30;b++){
+    var dk=ago(b);completions[dk]=[];
+    [1,2,3,4,5].forEach(function(hid){if(pats[hid][b])completions[dk].push(hid);});
+  }
+  localStorage.setItem(S+'-habits',JSON.stringify({
+    habits:[
+      {id:1,name:'Drink 2L water',emoji:'💧',color:0},
+      {id:2,name:'Exercise',emoji:'🏃',color:1},
+      {id:3,name:'Read 10 mins',emoji:'📚',color:2},
+      {id:4,name:'Take meds',emoji:'💊',color:3},
+      {id:5,name:'Bed by 11pm',emoji:'😴',color:4}
+    ],
+    completions:completions
+  }));
+
+  // ── WEEKLY PLAN ──
+  var now=new Date();
+  var dow=now.getDay();var diff=dow===0?-6:1-dow;
+  var mon=new Date(now);mon.setDate(mon.getDate()+diff);
+  var mk=mon.toISOString().split('T')[0];
+  var wdays={};
+  var plans=[
+    ['Weekly review & planning','Prepare standup slides','Clear inbox to zero','Good energy on Mondays — use it for hard thinking'],
+    ['Landing page mockup final','Send outstanding invoices','','Landing page is the whole priority this week'],
+    ['Doctor appointment 10am','Light admin only','','Half day — be realistic with yourself'],
+    ['Deep work day — block calendar','Code review for Sarah','','No meetings before noon. Protect it.'],
+    ['Week wrap-up & retrospective','Plan next week','Team drinks 6pm 🍻','Finish strong then actually rest'],
+    ['','','','Weekend — protected. No work.'],
+    ['','','','Weekend — protected. No work.']
+  ];
+  for(var i=0;i<7;i++){
+    var wd=new Date(mon);wd.setDate(wd.getDate()+i);
+    var wdk=wd.toISOString().split('T')[0];
+    wdays[wdk]={tasks:plans[i].slice(0,3),note:plans[i][3]};
+  }
+  // Also next week
+  var nmon=new Date(mon);nmon.setDate(nmon.getDate()+7);
+  var nmk=nmon.toISOString().split('T')[0];
+  var nwdays={};
+  var nplans=[
+    ['Kickoff new project sprint','Set up project board',''],
+    ['Backend API design','Write technical spec',''],
+    ['Frontend component build','',''],
+    ['Integration testing','Code review',''],
+    ['Deploy to production','Sprint retrospective',''],
+    ['','',''],['','','']
+  ];
+  for(var j=0;j<7;j++){
+    var nwd=new Date(nmon);nwd.setDate(nwd.getDate()+j);
+    var nwdk=nwd.toISOString().split('T')[0];
+    nwdays[nwdk]={tasks:nplans[j],note:''};
+  }
+  localStorage.setItem(S+'-wplan-'+mk,JSON.stringify({
+    intention:'Get the landing page across the finish line — everything else is secondary this week',
+    days:wdays
+  }));
+  localStorage.setItem(S+'-wplan-'+nmk,JSON.stringify({
+    intention:'Ship the new sprint cleanly and set the team up for success',
+    days:nwdays
+  }));
+
+  // ── MONTHLY PLAN ──
+  var now2=new Date();
+  var moKey=now2.getFullYear()+'-'+String(now2.getMonth()+1).padStart(2,'0');
+  localStorage.setItem(S+'-mplan-'+moKey,JSON.stringify({
+    goal:'Ship the full redesign before the 28th and actually take both weekends off this month',
+    days:{}
+  }));
+
+  // ── GLOBAL ──
+  localStorage.setItem(S+'-global',JSON.stringify({theme:'light'}));
   localStorage.setItem('adhd-flow-v3-welcomed','1');
+  localStorage.setItem('adhd-flow-v3-last-export', new Date(Date.now()-3*24*60*60*1000).toISOString());
 })();
 
 // ── BOOT ──────────────────────────────────────────
