@@ -1,0 +1,18 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.orig
+
+# User exports (don't commit personal data)
+adhd-flow-backup-*.json
+daily-flow-backup-*.json
