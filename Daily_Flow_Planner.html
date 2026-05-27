@@ -277,11 +277,25 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
 .save-pill.on{opacity:1}
 .btn-ico{width:34px;height:34px;border:1px solid var(--bd);background:var(--card2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.88rem;transition:all var(--t);color:var(--tx2);flex-shrink:0}
 .btn-ico:hover{background:var(--bg-sub)}
-@media(max-width:480px){
+/* ── Mobile two-row header: icons row 1, date row 2 ── */
+@media(max-width:767px){
+  .hdr{flex-wrap:wrap;height:auto;min-height:50px;padding:7px 12px 0;row-gap:0}
+  .logo{order:1;max-width:32px;font-size:1.1rem}
+  .hdr-r{order:2;margin-left:auto;gap:5px}
+  .hdr-mid{
+    order:3;flex:0 0 100%;
+    position:static;transform:none;
+    pointer-events:all;
+    text-align:center;
+    padding:4px 0 6px;
+    margin-top:4px;
+    border-top:1px solid var(--bd);
+  }
+  .hdr-day{display:inline;font-size:.8rem;font-family:'Fraunces',serif;font-weight:700;color:var(--tx)}
+  .hdr-day::after{content:' ·';color:var(--tx3);font-weight:400}
+  .hdr-dt{display:inline;font-size:.8rem;color:var(--tx2);margin-left:3px}
   .save-pill{display:none}
-  .logo{max-width:32px;font-size:1.1rem}
-  .btn-ico{width:30px;height:30px;font-size:.78rem;gap:4px}
-  .hdr-r{gap:4px}
+  .btn-ico,.hdr-fab{width:30px;height:30px;font-size:.8rem}
 }
 
 /* ── TAB CONTENT ─────────────────────────────── */
