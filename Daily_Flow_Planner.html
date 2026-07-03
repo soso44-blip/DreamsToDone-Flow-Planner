@@ -812,17 +812,13 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
 .mv-insight-label{font-size:.68rem;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
 .mv-insight-value{font-size:.84rem;color:var(--tx);font-weight:600;margin-top:1px}
 
-/* ── BACKUP REMINDER BANNER ──────────────── */
-.backup-reminder{display:none;align-items:center;gap:10px;padding:9px 16px;background:linear-gradient(135deg,var(--yellow-l),var(--orange-l));border-bottom:1.5px solid var(--yellow);flex-shrink:0;z-index:9}
-.backup-reminder.on{display:flex}
-.bkp-ico{font-size:1rem;flex-shrink:0}
-.bkp-txt{flex:1;font-size:.76rem;color:var(--tx2);font-weight:500;line-height:1.4}
-.bkp-txt strong{color:var(--orange)}
-.bkp-export{padding:6px 12px;border:none;border-radius:var(--rs);background:var(--orange);color:#fff;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all var(--t);flex-shrink:0}
-.bkp-export:hover{filter:brightness(1.1)}
-.bkp-dismiss{background:none;border:none;color:var(--tx3);font-size:.85rem;cursor:pointer;padding:0;flex-shrink:0;transition:color var(--t)}
-.bkp-dismiss:hover{color:var(--tx)}
 
+
+.bkp-badge{position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid var(--card);display:none;pointer-events:none}
+.bkp-badge.on{display:block}
+.dtd-link{display:none;text-decoration:none;color:var(--tx3);font-size:.56rem;letter-spacing:.06em;transition:color var(--t);text-align:center;padding:6px 8px}
+.dtd-link:hover{color:var(--orange)}
+@media(min-width:768px){.dtd-link{display:block;margin-top:auto;padding:10px 16px 14px}}
 /* ── PRIVATE MODE OVERLAY ────────────────── */
 .private-overlay{position:absolute;inset:0;background:var(--bg);z-index:700;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center}
 .private-overlay.hidden{display:none}
@@ -888,7 +884,7 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
   .app{max-width:100%;width:100%;height:auto;min-height:100vh;display:grid;grid-template-rows:54px 1fr;grid-template-columns:220px 1fr;box-shadow:none}
   .hdr{grid-column:1/-1;grid-row:1;position:sticky;top:0;z-index:100;padding:0 24px}
   .tab-bar{grid-column:1;grid-row:2;flex-direction:column;justify-content:flex-start;align-items:stretch;height:calc(100vh - 54px);position:sticky;top:54px;border-top:none;border-right:1px solid var(--bd);box-shadow:none;padding:20px 0;gap:2px;overflow-y:auto;padding-bottom:40px}
-  .tab-bar::after{content:'© DreamsToDone';position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:.56rem;color:var(--tx3);letter-spacing:.06em;pointer-events:none}
+  .tab-bar{padding-bottom:30px}
   .tab-btn{flex:0;flex-direction:row;justify-content:flex-start;align-items:center;gap:13px;padding:12px 16px 12px 22px;border-top:none;border-left:3px solid transparent;font-size:.84rem;font-weight:600;text-transform:none;letter-spacing:0;border-radius:0}
   .tab-btn.active{border-left-color:var(--accent);border-top-color:transparent;background:color-mix(in srgb,var(--accent) 9%,transparent);color:var(--accent)}
   .tab-btn.active .t-ico{transform:none}
@@ -948,7 +944,10 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
       <div class="save-pill" id="savePill">✓ Saved</div>
       <button class="hdr-fab" id="hdrTmrBtn" title="Focus timer">⏱</button>
       <button class="hdr-fab" id="hdrQcBtn" title="Quick capture">+</button>
-      <button class="btn-ico" id="backupBtn" title="Backup & Restore">💾</button>
+      <div style="position:relative;flex-shrink:0">
+        <button class="btn-ico" id="backupBtn" title="Backup & Restore">💾</button>
+        <span class="bkp-badge" id="backupBadge"></span>
+      </div>
       <button class="btn-ico" id="printBtn"  title="Print today">🖨️</button>
       <button class="btn-ico" id="histShortcut" title="History">📅</button>
       <button class="btn-ico" id="darkBtn"   title="Dark mode">🌙</button>
@@ -968,13 +967,6 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
     <button class="pv-ok" id="privateOk">I'll open it in a normal tab</button>
   </div>
 
-  <!-- BACKUP REMINDER BANNER -->
-  <div class="backup-reminder" id="backupReminder">
-    <span class="bkp-ico">💾</span>
-    <span class="bkp-txt" id="backupReminderTxt">Your data hasn't been backed up recently.</span>
-    <button class="bkp-export" id="bkpExportNow">Export now</button>
-    <button class="bkp-dismiss" id="bkpDismiss" title="Remind me tomorrow">✕</button>
-  </div>
 
   <!-- STREAK CELEBRATION OVERLAY -->
   <div class="streak-cel" id="streakCel">
@@ -1268,8 +1260,9 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
     <button class="tab-btn" data-tab="weekly"><span class="t-ico">📅</span>Weekly</button>
     <button class="tab-btn" data-tab="monthly"><span class="t-ico">🗓</span>Monthly</button>
     <button class="tab-btn" data-tab="habits"><span class="t-ico">✅</span>Habits</button>
+    <a class="dtd-link" href="https://dreamstodone.etsy.com" target="_blank" rel="noopener noreferrer">© DreamsToDone</a>
   </nav>
-  <div style="text-align:center;padding:4px 0 calc(4px + env(safe-area-inset-bottom,0px));font-size:.55rem;color:var(--tx3);letter-spacing:.06em;background:var(--card);border-top:1px solid var(--bd);flex-shrink:0">© DreamsToDone</div>
+  <div style="text-align:center;padding:4px 0 calc(4px + env(safe-area-inset-bottom,0px));font-size:.55rem;letter-spacing:.06em;background:var(--card);border-top:1px solid var(--bd);flex-shrink:0"><a href="https://dreamstodone.etsy.com" target="_blank" rel="noopener noreferrer" style="color:var(--tx3);text-decoration:none">© DreamsToDone</a></div>
 
 </div><!-- /app -->
   <!-- BACKUP BACKDROP + SHEET -->
@@ -1278,6 +1271,9 @@ textarea{resize:none} ::placeholder{color:var(--tx3)} button{cursor:pointer;-web
     <div class="backup-sheet-hdr">
       <div class="backup-sheet-title">💾 Backup & Restore</div>
       <button class="backup-sheet-close" id="backupClose">✕</button>
+    </div>
+    <div id="backupTip" style="display:none;padding:9px 12px;background:var(--orange-l);border-left:3px solid var(--orange);border-radius:0 var(--rs) var(--rs) 0;font-size:.76rem;color:var(--tx2);line-height:1.5;margin-bottom:14px">
+      ⚠️ <strong>Your data hasn't been backed up recently.</strong> Export now to protect your progress.
     </div>
     <p class="backup-desc">Your data lives in this browser. Exporting saves everything to a file on your device — import it anytime to restore, or to move to a different browser or computer.</p>
     <div class="backup-status">
@@ -2313,7 +2309,7 @@ function generatePrintView(){
 
     // Footer
     '<div class="pv-footer">'+
-      '<span>© DreamsToDone · ADHD Flow Planner</span>'+
+      '<span>© DreamsToDone · Daily Flow Planner</span>'+
       '<span>'+dateStr+'</span>'+
     '</div>'+
 
@@ -2707,6 +2703,7 @@ document.querySelectorAll('.ws-dot').forEach(function(d){d.addEventListener('cli
 // ── BACKUP & RESTORE ───────────────────────────────
 function openBackup(){
   updateLastExport();
+  checkBackupReminder();
   document.getElementById('backupSheet').classList.add('open');
   document.getElementById('backupBackdrop').classList.add('open');
 }
@@ -2744,6 +2741,7 @@ function exportData(){
   URL.revokeObjectURL(url);
   localStorage.setItem(EXPORT_KEY,new Date().toISOString());
   updateLastExport();
+  checkBackupReminder();
 }
 function importData(file){
   var reader=new FileReader();
@@ -2918,33 +2916,18 @@ function renderWeeklyInsights(stats,lastMonKey,thisMon){
   });
 }
 
-// ── 2. AUTO-BACKUP REMINDER ─────────────────────────
-var REMIND_KEY=SK+'-remind-dismiss';
+// ── 2. AUTO-BACKUP REMINDER (badge on 💾 icon) ───────
 function checkBackupReminder(){
+  var badge=document.getElementById('backupBadge');
+  if(!badge) return;
   var lastExport=localStorage.getItem(EXPORT_KEY);
-  var lastDismiss=localStorage.getItem(REMIND_KEY);
   var now=new Date();
-  if(lastDismiss&&(now-new Date(lastDismiss))<24*60*60*1000) return;
-  var show=false;var msg='';
-  if(!lastExport){
-    show=true;msg='You\'ve never backed up your data. <strong>One tap protects everything.</strong>';
-  }else{
-    var days=Math.floor((now-new Date(lastExport))/(1000*60*60*24));
-    if(days>=7){show=true;msg='Last backup was <strong>'+days+' days ago</strong>. Export to keep your data safe.';}
-  }
-  if(show){
-    document.getElementById('backupReminderTxt').innerHTML=msg;
-    document.getElementById('backupReminder').classList.add('on');
-  }
+  var overdue=!lastExport||Math.floor((now-new Date(lastExport))/(1000*60*60*24))>=7;
+  badge.classList.toggle('on',overdue);
+  // Also show/hide tip inside backup sheet
+  var tip=document.getElementById('backupTip');
+  if(tip) tip.style.display=overdue?'block':'none';
 }
-document.getElementById('bkpExportNow').addEventListener('click',function(){
-  exportData();
-  document.getElementById('backupReminder').classList.remove('on');
-});
-document.getElementById('bkpDismiss').addEventListener('click',function(){
-  localStorage.setItem(REMIND_KEY,new Date().toISOString());
-  document.getElementById('backupReminder').classList.remove('on');
-});
 
 // ── 1. PRIVATE MODE DETECTION ──────────────────────
 function detectPrivateMode(){
